@@ -1,7 +1,10 @@
 
-#  █░█ █ █▀▀ █░█   █▀█ █░█ ▄▀█ █░░ █ ▀█▀ █▄█   █▀▄▀█ █▀█ █▄▄ █▀▀ █▀█ █ █▄░█ █▀   █▀█ █░░ █░█ █▀▀ █ █▄░█
-#  █▀█ █ █▄█ █▀█   ▀▀█ █▄█ █▀█ █▄▄ █ ░█░ ░█░   █░▀░█ █▄█ █▄█ █▄▄ █▄█ █ █░▀█ ▄█   █▀▀ █▄▄ █▄█ █▄█ █ █░▀█
-#  By TMDevelopment | devtm.net | discord.devtm.net |
+#     _____         _      _____         _ _ _          _____     _           _                _         _
+#    | __  |___ ___| |_   |     |_ _ ___| |_| |_ _ _   |     |___| |_ ___ ___|_|___ ___    ___| |_ _ ___|_|___
+#    | __ -| -_|_ -|  _|  |  |  | | | .'| | |  _| | |  | | | | . | . |  _| . | |   |_ -|  | . | | | | . | |   |
+#    |_____|___|___|_|    |__  _|___|__,|_|_|_| |_  |  |_|_|_|___|___|___|___|_|_|_|___|  |  _|_|___|_  |_|_|_|
+#                            |__|               |___|                                     |_|       |___|
+# _____________________________________________________________________| Flares.dev | discord.flares.dev
 
 enable_debug: false
 
@@ -9,34 +12,29 @@ allow_bstats: true
 
 select_locale: en.yml
 
-hook_into_stacker: false
-
-main_command_aliases:
-  - "tmmobcoins"
-  - "mc"
-
-storage_type:
-  # This will make the mobcoins read slowly, it VERY usefully/necessary for not make reads to the database if this is set to 0 will lag out the server
-  read_delay: 5
-  # Choose (file|database|sqlite) read more here: https://mobcoins.devtm.net/basic-setup/connecting-to-a-database
-  type: file
+storage:
+  # This is used to not spam the connection with a lot of reads, but if you want to disable this feature set the cache_time to 0
+  cache_time: 5
+  # Choose (file|mysql|sqlite)
+  type: sqlite
   # Database drivers available only for database storage type
   driver: MySql
-  connection:
+  mysql:
     host: "localhost"
-    port: "3306"
+    port: 3306
     database: "test"
     username: "root"
     password: ""
-    table: "tmmobcoins"
+    table: "flaretokens"
 
 first_join_give_mobcoins: 0
 
+rotating_shop_time_format: "%min% min %sec% sec"
+
 shop:
-  # Read more here: https://mobcoins.devtm.net/basic-setup/making-the-shop
-  # Every change in the setting will require a restart or reload (Plugman should work fine)
-  settings:
-    # This could use the mobcoins base command (ex: /mobcoins) to open the shop
-    open_command: "mobcoinshop"
-    shop_type: normal
-  enabled: false
+  # Rather if you want to have the shop enabled.
+  enable: true
+  # This could use the mobcoins base command (ex: /mobcoins) to open the shop.
+  open_command: "tokenshop"
+  # Add the shop file name (Example for "shop.yml" just shop). (Shops are added in the shop folder)
+  main_shop: main

@@ -2,12 +2,19 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <artifactId>TMMobcoins</artifactId>
+  <artifactId>FlareMobcoins</artifactId>
 
-  <groupId>devtm.net</groupId>
+  <groupId>flares.dev</groupId>
   <modelVersion>4.0.0</modelVersion>
 
   <dependencies>
+
+    <dependency>
+      <groupId>net.flaredev</groupId>
+      <artifactId>flarepowered</artifactId>
+      <version>23.6.23</version>
+    </dependency>
+
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
@@ -35,6 +42,23 @@
       <version>1.7.1</version>
       <scope>provided</scope>
     </dependency>
+    <!--Stackers-->
+    <dependency>
+      <groupId>dev.rosewood</groupId>
+      <artifactId>rosestacker</artifactId>
+      <version>1.4.13</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.bgsoftware</groupId>
+      <artifactId>WildStackerAPI</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.68</version>
+    </dependency>
   </dependencies>
 
   <properties>
@@ -43,6 +67,16 @@
   </properties>
 
   <repositories>
+    <!--Stackers-->
+      <repository>
+        <id>rosewood-repo</id>
+        <url>https://repo.rosewooddev.io/repository/public/</url>
+      </repository>
+      <repository>
+        <id>bg-repo</id>
+        <url>https://repo.bg-software.com/repository/api/</url>
+      </repository>
+    <!--IMPORTANT-->
     <repository>
       <id>placeholderapi</id>
       <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>

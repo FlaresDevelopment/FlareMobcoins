@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FlareMobcoins:jar">
+    <output-path>$USER_HOME$/Desktop/server/plugins</output-path>
+    <root id="archive" name="FlareMobcoins.jar">
+      <element id="module-output" name="FlareMobcoins" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/alibaba/fastjson/1.2.68/fastjson-1.2.68.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/bgsoftware/WildStackerAPI/3.8.1/WildStackerAPI-3.8.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Jars/FlareLib.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

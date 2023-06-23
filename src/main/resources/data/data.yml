@@ -1,9 +1,17 @@
-refresh_data:
-  normal: -1
-  special: -1
-  items_in_storage:
-    special: []
-    normal: []
+rotating_shop:
+  main:
+    normal_last_time: 0
+    premium_last_time: 0
+    items_normal:
+      item1:
+        stock:
+        slot:
+    items_premium:
+      item1:
+        stock:
+        slot:
+players:
+  uuid:
 global_multiplier: 1
 mobcoins:
   uuid: 100

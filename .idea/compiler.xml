@@ -7,10 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="FlareMobcoins" />
         <module name="RedstoneCore" />
-        <module name="TMCore" />
         <module name="TMTokens" />
         <module name="TMMobcoins" />
+        <module name="TMCore" />
         <module name="TMparkour" />
         <module name="hub-limitter" />
       </profile>

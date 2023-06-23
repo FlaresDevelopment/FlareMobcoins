@@ -1,25 +1,33 @@
 package net.devtm.tmmobcoins.files;
 
 import lombok.Getter;
-import net.devtm.tmmobcoins.files.files.*;
+import net.flares.lib.database.json.JsonFile;
+import net.flares.lib.database.yaml.YamlFile;
 import net.devtm.tmmobcoins.TMMobCoinsPlugin;
+
+import java.io.File;
 
 @Getter
 public enum FilesManager {
     ACCESS;
 
-    private dataFile data;
-    private LogsFile logs;
-    private localeFile locale;
-    private configFile config;
-    private DropsFile drops;
+    private YamlFile data;
+    private YamlFile logs;
+    private YamlFile locale;
+    private YamlFile config;
+    private YamlFile drops;
+    private JsonFile jsonData;
 
     public void initialization() {
-        this.data = new dataFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class));
-        this.locale = new localeFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class));
-        this.config = new configFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class));
-        this.drops = new DropsFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class));
-        this.logs = new LogsFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class));
+        if (!new File(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class).getDataFolder(),"config.yml").exists()) {
+            TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class).saveResource("shop/main.yml", false);
+        }
+        this.data = new YamlFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class), "data/data.yml");
+        this.locale = new YamlFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class), "locale/en.yml");
+        this.config = new YamlFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class), "config.yml");
+        this.drops = new YamlFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class), "drops.yml");
+        this.logs = new YamlFile(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class), "data/logs.yml");
+        //this.jsonData = new JsonFile(new File(TMMobCoinsPlugin.getPlugin(TMMobCoinsPlugin.class).getDataFolder(), "test.json"));
         loadConfig();
     }
     public void reload() {

@@ -1,39 +1,58 @@
 package net.devtm.tmmobcoins.API;
 
-import net.devtm.tmmobcoins.util.MobCoinsPlayer;
-import org.bukkit.entity.Entity;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Field;
 
 public class MobCoinReceiveEvent extends Event implements Cancellable {
 
+    private static Field asyncField;
     private static final HandlerList HANDLERS_LIST = new HandlerList();
     private Player player;
-    private MobCoinsPlayer mobCoinsPlayer;
-    private Entity entity;
+    private MobcoinsPlayer mobCoinsPlayer;
+    private String entity;
     private boolean isCancelled;
     private double obtainedAmount;
 
-    public MobCoinReceiveEvent(Player player, MobCoinsPlayer mobCoinsPlayer, Entity entity, double obtainedAmount) {
+    public MobCoinReceiveEvent(Player player, MobcoinsPlayer mobCoinsPlayer, String entity, double obtainedAmount) {
         this.player = player;
         this.mobCoinsPlayer = mobCoinsPlayer;
         this.entity = entity;
         this.obtainedAmount = obtainedAmount;
         this.isCancelled = false;
+//        try {
+//            asyncField.set(this, !Bukkit.isPrimaryThread());
+//        } catch (IllegalAccessException var5) {
+//            var5.printStackTrace();
+//        }
     }
+
+//    static {
+//        try {
+//            asyncField = Event.class.getDeclaredField("async");
+//            asyncField.setAccessible(true);
+//        } catch (NoSuchFieldException var1) {
+//            var1.printStackTrace();
+//        }
+//
+//    }
+
 
     public Player getPlayer() { return player; }
 
     public double getObtainedAmount() { return obtainedAmount;  }
 
-    public Entity getEntity() { return entity; }
+    public String getEntity() { return entity; }
 
     public void setDropAmount(double amount) { this.obtainedAmount = amount; }
 
-    public MobCoinsPlayer getMobCoinsPlayer() { return mobCoinsPlayer; }
+    public MobcoinsPlayer getMobCoinsPlayer() { return mobCoinsPlayer; }
 
     @NotNull
     public static HandlerList getHandlerList() {

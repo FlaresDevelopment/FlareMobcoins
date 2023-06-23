@@ -1,7 +1,9 @@
 package net.devtm.tmmobcoins;
 
 import lombok.Getter;
-import net.devtm.tmmobcoins.command.ShopMenuCommand;
+import net.flares.lib.Lib;
+import net.flares.lib.base.bStatsMetrics;
+import net.flares.lib.base.color.ColorAPI;
 import net.devtm.tmmobcoins.command.MobcoinsCommand;
 import net.devtm.tmmobcoins.files.FilesManager;
 import net.devtm.tmmobcoins.listener.BasicListener;
@@ -10,53 +12,52 @@ import net.devtm.tmmobcoins.service.ServiceHandler;
 import net.devtm.tmmobcoins.util.PlaceholderAPI;
 import net.devtm.tmmobcoins.util.PlaceholdersClass;
 import net.devtm.tmmobcoins.util.Utils;
-import net.tmmobcoins.lib.Lib;
-import net.tmmobcoins.lib.base.ColorAPI;
-import net.tmmobcoins.lib.base.VersionCheckers;
-import net.tmmobcoins.lib.base.bStatsMetrics;
-import net.tmmobcoins.lib.utils.CommandsHandler;
+import net.devtm.tmmobcoins.util.components.BuyComponent;
+import net.devtm.tmmobcoins.util.components.MobcoinsComponent;
+import net.devtm.tmmobcoins.util.components.OpenMenuComponent;
+import net.flares.lib.database.MySQL.SQLHandler;
+import net.flares.lib.database.hikari.HikariDatabase;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.Level;
 
 @Getter
 public enum TMMobCoins {
   PLUGIN;
-
   private TMMobCoinsPlugin plugin;
-  private Utils utils;
-  private final boolean enabledMenu = true;
+  private HikariDatabase database;
 
-  private Command shopCommand;
-  private Command mobcoinsMainCommand;
+  private final boolean enabledMenu = true;
 
   public void start(final TMMobCoinsPlugin plugin) {
     FilesManager.ACCESS.initialization();
     Lib.LIB.libStart(plugin);
     Lib.LIB.setCustomPlaceholders(new PlaceholdersClass());
     Lib.LIB.setLocales(FilesManager.ACCESS.getLocale().getConfig());
-    Lib.LIB.enableCBA();
+    Lib.LIB.getTMLArray().addComponent(new MobcoinsComponent());
+    Lib.LIB.getTMLArray().addComponent(new OpenMenuComponent());
+    Lib.LIB.getTMLArray().addComponent(new BuyComponent());
     this.plugin = plugin;
-    this.utils = new Utils();
     startStorage();
     assert plugin != null : "Something went wrong! Plugin was null.";
     this.init();
     startLog();
     usebStats();
+    ServiceHandler.SERVICE.onEnable();
     commandsSetup();
     ServiceHandler.SERVICE.getLoggerService().fileSetup();
-    /* init the shop runner */
-    /*if(FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.shop_type").equalsIgnoreCase("rotating")) {
-      utils.runnable(plugin);
-      if(FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.normal").isEmpty())
-        utils.regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "normal");
-      if(FilesManager.ACCESS.getData().getConfig().getStringList("refresh_data.items_in_storage.special").isEmpty())
-        utils.regenerateItems(FilesManager.ACCESS.getConfig().getConfig(), "special");
-    }*/
+    ServiceHandler.SERVICE.getDataService().reloadDataService();
+    Utils.UTILS.reloadUtils();
   }
 
   /**
@@ -66,9 +67,8 @@ public enum TMMobCoins {
    */
   public void stop(final TMMobCoinsPlugin plugin) {
     this.plugin = plugin;
-    if(this.shopCommand != null) {}
-      //CommandsHandler.unRegisterBukkitCommand(this.shopCommand);
-    //CommandsHandler.unRegisterBukkitCommand(this.mobcoinsMainCommand);
+    ServiceHandler.SERVICE.getDataService().setMobcoins(null, 0);
+    stopLog();
   }
 
   /**
@@ -78,65 +78,86 @@ public enum TMMobCoins {
     this.registerListener();
     if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
       new PlaceholderAPI().register();
-
     if(this.enabledMenu) {
       Lib.LIB.enableGUI();
     }
   }
 
   public void commandsSetup() {
-    this.mobcoinsMainCommand = new MobcoinsCommand("mobcoins", "Mobcoins base command", FilesManager.ACCESS.getConfig().getConfig().getStringList("main_command_aliases"));
-    CommandsHandler.registerCommand("mobcoins", this.mobcoinsMainCommand);
-    //plugin.getCommand("tokens").setTabCompleter(new pluginCommand());
-
-    if(!FilesManager.ACCESS.getConfig().getConfig().getBoolean("shop.settings.default_command")) {
-      String usage = FilesManager.ACCESS.getConfig().getConfig().getString("shop.settings.open_command");
-      this.shopCommand = new ShopMenuCommand(usage, "TMMobcoins shop custom command");
-      CommandsHandler.registerCommand(usage, this.shopCommand);
-    }
+    plugin.getCommand("mobcoins").setExecutor(new MobcoinsCommand());
   }
 
   public void startStorage() {
-    if(!FilesManager.ACCESS.getData().getConfig().contains("global_multiplier")) {
-      FilesManager.ACCESS.getData().getConfig().set("global_multiplier", 1);
-      FilesManager.ACCESS.getData().saveConfig();
-    }
-    if(FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.type").equalsIgnoreCase("database")) {
-      Lib.LIB.enableMySQL(
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.host"),
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.username"),
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.password"),
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.database"),
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.port"),
-              FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.driver")
-      );
-      Lib.LIB.getMySQL().sqlIO.createTable(FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.connection.table"),
-              "player VARCHAR(100), uuid VARCHAR(100), mobcoins DOUBLE(10,2), multiplier DOUBLE(10,2)");
+    switch (Objects.requireNonNull(FilesManager.ACCESS.getConfig().getConfig().getString("storage.type")).toLowerCase(Locale.ROOT)) {
+      case "mysql":
+        this.database = new HikariDatabase("mysql",
+                FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.host"),
+                FilesManager.ACCESS.getConfig().getConfig().getInt("storage.mysql.port"),
+                FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.database"),
+                FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.password"),
+                FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.username"), ""
+        );
+        try {
+          SQLHandler.createTableIfNotExists(database.getConnection(), FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.table"),
+                  "player VARCHAR(100), uuid VARCHAR(100), mobcoins DOUBLE(10,2), multiplier DOUBLE(10,2)");
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
+        break;
+      case "sqlite":
+        String url = "jdbc:sqlite:" + new File(plugin.getDataFolder(), "data/data.db").getAbsolutePath();
+        try (Connection conn = DriverManager.getConnection(url)) {
+          if (conn != null) {
+            DatabaseMetaData meta = conn.getMetaData();
+          }
+          SQLHandler.createTableIfNotExists(conn, FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.table"),
+                  "player VARCHAR(100), uuid VARCHAR(100), mobcoins DOUBLE(10,2), multiplier DOUBLE(10,2)");
+        } catch (SQLException e) {
+          System.out.println(e.getMessage());
+        }
+        break;
     }
   }
 
   private void startLog() {
-    plugin.getLogger().log(Level.INFO, ColorAPI.process("Loading TMMobcoins"));
-    plugin.getLogger().log(Level.INFO, ColorAPI.process("Hooking into other plugins"));
 
-    if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
-      plugin.getLogger().log(Level.INFO, ColorAPI.process("PlaceholderAPI is not on the server or not enabled! (( Placeholder support is disabled ))"));
-    else plugin.getLogger().log(Level.INFO, ColorAPI.process("PlaceholderAPI is supported!"));
-
-    if (Bukkit.getPluginManager().getPlugin("Vault") == null)
-      Bukkit.getLogger().log(Level.WARNING, ColorAPI.process("Vault is not on the server or not enabled!  (( Economy support is disabled ))"));
-    else plugin.getLogger().log(Level.INFO, ColorAPI.process("Vault is supported!"));
-
-    plugin.getLogger().log(Level.INFO, ColorAPI.process("Checking version..."));
-    new VersionCheckers(getPlugin(), 91848).getUpdate(version -> {
+    plugin.getLogger().log(Level.INFO, ColorAPI.process(" _____ _                _____     _           _         "));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|   __| |___ ___ ___   |     |___| |_ ___ ___|_|___ ___ "));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|   __| | .'|  _| -_|  | | | | . | . |  _| . | |   |_ -|"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|__|  |_|__,|_| |___|  |_|_|_|___|___|___|___|_|_|_|___|"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("__________________________________________ By Flares.dev"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("⬝ Loading plugin"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ Plugin version: v" + plugin.getDescription().getVersion()));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ Using " + FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.type") + " for data saving"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process(""));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("⬝ Getting dependencies"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ PlaceholderAPI - " + (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null ? "not available" : "enabled")));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ Vault - " + (Bukkit.getPluginManager().getPlugin("Vault") == null ? "not available" : "enabled")));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process(""));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("⬝ Need support or want to report a bug join our discord (discord.flares.dev)"));
+    /*new VersionCheckers(getPlugin(), 101123).getUpdate(version -> {
       if (getPlugin().getDescription().getVersion().equals(version)) {
         plugin.getLogger().log(Level.INFO, ColorAPI.process("Running latest build (" + version + ")"));
       } else {
         Bukkit.getLogger().log(Level.WARNING, ColorAPI.process("Running an old build (" + getPlugin().getDescription().getVersion()
                 + ") Latest build is (" + version + "). Please try to update to the last version!"));
       }
-      plugin.getLogger().log(Level.INFO, ColorAPI.process("Made with love by Romanians"));
-    });
+      plugin.getLogger().log(Level.INFO, ColorAPI.process("Made with love in Romania"));
+    });*/
+  }
+
+  private void stopLog() {
+    plugin.getLogger().log(Level.INFO, ColorAPI.process(" _____ _                _____     _           _         "));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|   __| |___ ___ ___   |     |___| |_ ___ ___|_|___ ___ "));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|   __| | .'|  _| -_|  | | | | . | . |  _| . | |   |_ -|"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("|__|  |_|__,|_| |___|  |_|_|_|___|___|___|___|_|_|_|___|"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("__________________________________________ By Flares.dev"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("⬝ Disabling plugin"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ Plugin version: v" + plugin.getDescription().getVersion()));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("  ⬞ Closing " + FilesManager.ACCESS.getConfig().getConfig().getString("storage_type.type") + " connections"));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process(""));
+    plugin.getLogger().log(Level.INFO, ColorAPI.process("⬝ Thanks for using Flare Mobcoins."));
+
   }
 
   /**
@@ -153,7 +174,7 @@ public enum TMMobCoins {
 
   private void usebStats() {
     if(FilesManager.ACCESS.getConfig().getConfig().getBoolean("allow_bstats")) {
-      bStatsMetrics metrics = new bStatsMetrics(getPlugin(), 14664);
+      bStatsMetrics metrics = new bStatsMetrics(getPlugin(), 17684);
     }
   }
 

@@ -1,0 +1,15 @@
+menu_title: 'SHOP'
+size: 45
+# Here you can find a rotating_shop example
+items:
+  glass11:
+    material: BLACK_STAINED_GLASS_PANE
+    update: false
+    display_name: '&7Expample'
+    slot: 0
+    click_commands:
+      - "if"
+      - " [REQUIRE(mobcoins;100;remove)]"
+      - "do"
+      - " [CONSOLE] say hello"
+      - "end"
