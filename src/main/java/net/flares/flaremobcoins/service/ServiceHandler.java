@@ -1,6 +1,7 @@
-package net.devtm.tmmobcoins.service;
+package net.flares.flaremobcoins.service;
 
 import lombok.Getter;
+import net.flares.flaremobcoins.drops.EventService;
 
 @Getter
 public enum ServiceHandler {
@@ -8,7 +9,6 @@ public enum ServiceHandler {
 
     private MenuService menuService = new MenuService();
     private EventService eventService = new EventService();
-    private LoggerService loggerService = new LoggerService();
     private DataService dataService = new DataService();
 
     public void onEnable() {

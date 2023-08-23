@@ -1,8 +1,7 @@
-package net.devtm.tmmobcoins.API;
+package net.flares.flaremobcoins.API;
 
-import net.devtm.tmmobcoins.service.DataService;
-import net.devtm.tmmobcoins.service.ServiceHandler;
-import org.bukkit.entity.Player;
+import net.flares.flaremobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.util.Utils;
 
 import java.util.UUID;
 
@@ -11,6 +10,32 @@ public class MobcoinsPlayer {
     UUID uuid;
     double mobcoins;
     double multiplier = 1;
+
+    public static MobcoinsPlayer warpPlayer(UUID uuid) {
+        // get player if the player don't exist (in cache)
+        if(ServiceHandler.SERVICE.getDataService().cache.containsKey(uuid)) {
+            return ServiceHandler.SERVICE.getDataService().cache.get(uuid);
+        } else {
+            if(ServiceHandler.SERVICE.getDataService().hasAccount(uuid)) {
+                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().getMobcoins(uuid), ServiceHandler.SERVICE.getDataService().getMultiplier(uuid));
+            } else {
+                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().firstMobcoins, 1);
+            }
+        }
+    }
+    public static MobcoinsPlayer warpPlayer(String name) {
+        UUID uuid = Utils.UTILS.getPlayerUUID(name);
+        // get player if the player don't exist (in cache)
+        if(ServiceHandler.SERVICE.getDataService().cache.containsKey(uuid)) {
+            return ServiceHandler.SERVICE.getDataService().cache.get(uuid);
+        } else {
+            if(ServiceHandler.SERVICE.getDataService().hasAccount(uuid)) {
+                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().getMobcoins(uuid), ServiceHandler.SERVICE.getDataService().getMultiplier(uuid));
+            } else {
+                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().firstMobcoins, 1);
+            }
+        }
+    }
 
     public MobcoinsPlayer() {
         this.mobcoins = 0;

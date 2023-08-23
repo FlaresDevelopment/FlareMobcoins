@@ -10,9 +10,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>net.flaredev</groupId>
-      <artifactId>flarepowered</artifactId>
-      <version>23.6.23</version>
+      <groupId>com.github.FlaresDevelopment</groupId>
+      <artifactId>FlarePowered</artifactId>
+      <version>23.8.23-3</version>
     </dependency>
 
     <dependency>

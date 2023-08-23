@@ -1,8 +1,8 @@
 name: FlareMobcoins
-version: ALPHA-3.0
-main: net.devtm.tmmobcoins.TMMobCoinsPlugin
+version: 3.0
+main: net.flares.flaremobcoins.MobcoinsByFlares
 author: FlaresDevelopment
-description: Best Mob coins plugin plugin
+description: A mobcoins plugin made with love in Romania.
 website: "https://flares.dev"
 api-version: 1.13
 commands:
@@ -11,4 +11,6 @@ commands:
     aliases:
       - tmmobcoins
       - mobcoin
+      - mobcoins
+      - mcoins
       - flaremobcoins

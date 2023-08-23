@@ -1,4 +1,4 @@
-prefix: "<GRADIENT:#FF8008-#FFC837>TMMobcoins</GRADIENT> &7\u00BB&f"
+prefix: "<GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> &7\u00BB&f"
 
 basic:
   no_permission: "%pl_prefix% &cYou don't have permission."
@@ -6,11 +6,39 @@ basic:
   player_not_found: "%pl_prefix% &fPlayer not found."
   only_player: "%pl_prefix% &fThis command can be executed only in game."
 
+help_text:
+  header:
+    no_permission:
+      - ""
+      - " <GRADIENT:#FFC837-#FFC837>Flare Tokens</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
+      - " &fYou don't have help permission."
+      - ""
+    with_permission:
+      - " <GRADIENT:#FFC837-#FFC837>Flare Tokens</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
+      - ""
+      - " &f&nArguments:&r &7[] Required, () Optional."
+      - ""
+      - "%pl_commands%"
+      - ""
+      - "&7&oNote: If you need help using our plugin check our wiki or join our discord server (https://discord.com/invite/y9SFugjkrf)."
+  commands:
+    reload: " &8\u00BB &7/tokens reload &f- reloads plugin"
+    give: " &8\u00BB &7/tokens give [player] [tokens] &f- gives tokens to player"
+    set: " &8\u00BB &7/tokens set [player] [tokens] &f- sets tokens to a player"
+    remove: " &8\u00BB &7/tokens remove [player] [tokens] &f- removes tokens from a player"
+    balance: " &8\u00BB &7/tokens balance (player) &f- checks balance"
+    pay: " &8\u00BB &7/tokens pay [amount] [player] &f- pays tokens to a player"
+
+shop:
+  buy_failed: "%pl_prefix% &fYou don't have money from this!"
+  no_stock: "%pl_prefix% &fThis item is out of stock!"
+  placeholders:
+    no_stock: "&c&lOUT OF STOCK"
+    stock: "%pl_stock%/%pl_max_stock%"
+
 commands:
   reload:
     success: "%pl_prefix% &fPlugin was reloaded from files."
-    mysql: "%pl_prefix% &fThe database connection was reestablished."
-    commands: "%pl_prefix% &fCommands and menus was reloaded."
   give:
     help: '%pl_prefix% &fPlease use &#F09819"/mobcoins give [player] [amount]"&f.'
     success: "%pl_prefix% &fYou gave &#F09819%pl_mobcoins%&f to %pl_player%."
@@ -40,6 +68,8 @@ commands:
       help: '%pl_prefix% &fPlease use &#F09819"/mobcoins multiplier set [player] [value]"&f.'
       player: "%pl_prefix% &fYou got now a &#F09819%pl_multiplier% multiplier."
       otherplayer: "%pl_prefix% &fYou have set a &#F09819%pl_multiplier% multiplier for %pl_player%."
+    reset:
+      help: '%pl_prefix% &fPlease use &#F09819"/mobcoins multiplier reset [player]"&f.'
     global:
       help: '%pl_prefix% &fPlease use &#F09819"/mobcoins multiplier global [value]"&f.'
       success: "%pl_prefix% &fYou have set the entire server multiplier to &#F09819%pl_multiplier%."

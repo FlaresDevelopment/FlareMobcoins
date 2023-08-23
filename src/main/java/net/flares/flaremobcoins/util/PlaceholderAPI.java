@@ -1,10 +1,10 @@
-package net.devtm.tmmobcoins.util;
+package net.flares.flaremobcoins.util;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import net.devtm.tmmobcoins.TMMobCoins;
-import net.devtm.tmmobcoins.files.FilesManager;
-import net.devtm.tmmobcoins.service.DataService;
-import net.devtm.tmmobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.API.MobcoinsPlayer;
+import net.flares.flaremobcoins.FlareMobcoins;
+import net.flares.flaremobcoins.files.FilesManager;
+import net.flares.flaremobcoins.service.ServiceHandler;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,12 +21,12 @@ public class PlaceholderAPI extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return "TMDevelopment";
+        return "FlaresDevelopment";
     }
 
     @Override
     public @NotNull String getVersion() {
-        return "1.0";
+        return FlareMobcoins.PLUGIN.getPlugin().getDescription().getVersion();
     }
 
     @Override
@@ -52,18 +52,18 @@ public class PlaceholderAPI extends PlaceholderExpansion {
                     Utils.UTILS.findDifference(FilesManager.ACCESS.getData().getConfig().getLong("rotating_shop." + matcher.group(1) + "." + matcher.group(2) + "_last_time"), System.currentTimeMillis()));
         }
         if (params.contains("get_mobcoins"))
-            return String.valueOf(String.format("%.2f", ServiceHandler.SERVICE.getDataService().warpPlayer(p.getUniqueId()).getMobcoins()));
+            return String.valueOf(String.format("%.2f", MobcoinsPlayer.warpPlayer(p.getUniqueId()).getMobcoins()));
         else if(params.contains("get_commas_mobcoins"))
-            return String.format("%,.2f", ServiceHandler.SERVICE.getDataService().warpPlayer(p.getUniqueId()).getMobcoins());
-        else if(params.contains("get_formmated_mobcoins")) {
-            double mobcoins = ServiceHandler.SERVICE.getDataService().warpPlayer(p.getUniqueId()).getMobcoins();
+            return String.format("%,.2f", MobcoinsPlayer.warpPlayer(p.getUniqueId()).getMobcoins());
+        else if(params.contains("get_formatted_mobcoins")) {
+            double mobcoins = MobcoinsPlayer.warpPlayer(p.getUniqueId()).getMobcoins();
             if (mobcoins < 1000) return mobcoins + "";
             int exp = (int) (Math.log(mobcoins) / Math.log(1000));
             DecimalFormat format = new DecimalFormat("0.#");
             String value = format.format(mobcoins / Math.pow(1000, exp));
             return String.format("%s%c", value, "kMBT".charAt(exp - 1));
         } else if (params.contains("get_multiplier"))
-            return String.valueOf(ServiceHandler.SERVICE.getDataService().warpPlayer(p.getUniqueId()).getMultiplier());
+            return String.valueOf(MobcoinsPlayer.warpPlayer(p.getUniqueId()).getMultiplier());
         else if (params.contains("get_server_multiplier"))
             return String.valueOf(FilesManager.ACCESS.getData().getConfig().getDouble("global_multiplier"));
         return null;

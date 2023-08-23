@@ -1,4 +1,4 @@
-package net.devtm.tmmobcoins.util;
+package net.flares.flaremobcoins.util;
 
 public class ShopStock {
     int stock;

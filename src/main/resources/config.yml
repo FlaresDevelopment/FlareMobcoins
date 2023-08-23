@@ -16,7 +16,7 @@ storage:
   # This is used to not spam the connection with a lot of reads, but if you want to disable this feature set the cache_time to 0
   cache_time: 5
   # Choose (file|mysql|sqlite)
-  type: sqlite
+  type: file
   # Database drivers available only for database storage type
   driver: MySql
   mysql:
@@ -31,10 +31,17 @@ first_join_give_mobcoins: 0
 
 rotating_shop_time_format: "%min% min %sec% sec"
 
+physical_coin:
+  enable: false
+  only_the_killer_can_collect: true
+  item:
+    material: "[HEAD] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTVmZDY3ZDU2ZmZjNTNmYjM2MGExNzg3OWQ5YjUzMzhkNzMzMmQ4ZjEyOTQ5MWE1ZTE3ZThkNmU4YWVhNmMzYSJ9fX0="
+    display_name: "Physical Coin"
+
 shop:
   # Rather if you want to have the shop enabled.
   enable: true
   # This could use the mobcoins base command (ex: /mobcoins) to open the shop.
-  open_command: "tokenshop"
+  open_command: "mobcoinshop"
   # Add the shop file name (Example for "shop.yml" just shop). (Shops are added in the shop folder)
   main_shop: main

@@ -1,11 +1,10 @@
-package net.devtm.tmmobcoins.service;
+package net.flares.flaremobcoins.drops;
 
 import com.bgsoftware.wildstacker.api.WildStackerAPI;
-import net.devtm.tmmobcoins.TMMobCoins;
-import net.devtm.tmmobcoins.files.FilesManager;
+import net.flares.flaremobcoins.FlareMobcoins;
+import net.flares.flaremobcoins.files.FilesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +15,8 @@ import java.util.regex.Pattern;
 
 public class EventService {
 
+
+
     public int getTheStackMobs(EntityDeathEvent event) {
         try {
 //            if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
@@ -25,10 +26,10 @@ public class EventService {
                 return WildStackerAPI.getStackedEntity(event.getEntity()).getStackAmount();
             }
         } catch (NullPointerException e) {
-            TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Something happened when a player killed a stacked entity");
-            TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Try turning on the debug mode for logs");
-            TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Error message: " + e.getMessage());
-            TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Error code (for support): 012002");
+            FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Something happened when a player killed a stacked entity");
+            FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Try turning on the debug mode for logs");
+            FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Error message: " + e.getMessage());
+            FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, "Error code (for support): 012002");
         }
         return 1;
     }

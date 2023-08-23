@@ -1,10 +1,8 @@
-package net.devtm.tmmobcoins.util;
+package net.flares.flaremobcoins.util;
 
 import lombok.Getter;
-import net.devtm.tmmobcoins.API.MobcoinsPlayer;
-import net.devtm.tmmobcoins.TMMobCoins;
-import net.devtm.tmmobcoins.files.FilesManager;
-import net.devtm.tmmobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.FlareMobcoins;
+import net.flares.flaremobcoins.files.FilesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,8 +20,6 @@ public enum Utils {
 
   private NumberFormat doubleFormat = new DecimalFormat("#0.00");
   long delayFactor = 0;
-  HashMap<UUID, FlarePlayer> delayPlayers = new HashMap<>();
-
   public void reloadUtils() {
     delayFactor = FilesManager.ACCESS.getConfig().getConfig().getInt("storage_type.read_delay");
   }
@@ -55,7 +51,7 @@ public enum Utils {
   }
 
   public static FileConfiguration readConfig(String file) {
-    return YamlConfiguration.loadConfiguration(new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), file));
+    return YamlConfiguration.loadConfiguration(new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), file));
   }
   public static FileConfiguration readConfig(Path file) {
     return YamlConfiguration.loadConfiguration(new File(file.toString()));

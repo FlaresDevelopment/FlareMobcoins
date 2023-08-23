@@ -1,70 +1,74 @@
-package net.devtm.tmmobcoins.service;
+package net.flares.flaremobcoins.service;
 
-import net.devtm.tmmobcoins.TMMobCoins;
-import net.flares.lib.Lib;
-import net.flares.lib.database.MySQL.SQLHandler;
-import net.flares.lib.database.json.JsonFile;
-import net.devtm.tmmobcoins.API.MobcoinsPlayer;
-import net.devtm.tmmobcoins.TMMobCoinsPlugin;
-import net.devtm.tmmobcoins.files.FilesManager;
-import net.devtm.tmmobcoins.util.FlarePlayer;
-import net.devtm.tmmobcoins.util.Utils;
-import org.bukkit.entity.Mob;
+import net.flarepowered.core.data.MySQL.SQLHandler;
+import net.flarepowered.core.data.hikari.HikariDatabase;
+import net.flares.flaremobcoins.FlareMobcoins;
+import net.flares.flaremobcoins.API.MobcoinsPlayer;
+import net.flares.flaremobcoins.files.FilesManager;
+import net.flares.flaremobcoins.util.Utils;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.*;
 
 public class DataService {
 
+    private HikariDatabase database;
+
     int read = 0;
-    final HashMap<UUID, MobcoinsPlayer> cache = new HashMap<>();
-    final List<UUID> hasAccounts = new ArrayList<>();
-    final List<UUID> cacheUpdates = new ArrayList<>();
+    public final HashMap<UUID, MobcoinsPlayer> cache = new HashMap<>();
+    public final List<UUID> hasAccounts = new ArrayList<>();
+    public final List<UUID> cacheUpdates = new ArrayList<>();
     long lastUpdateTime = 0;
     String storageType = null;
     public String table = null;
     public int firstMobcoins = 0;
 
-    public void updateTask () {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                setMobcoins(null, 0);
-            }
-        }.runTaskTimerAsynchronously(TMMobCoins.PLUGIN.getPlugin(), 5, 1000);
+    public void onEnable() {
+        switch (Objects.requireNonNull(FilesManager.ACCESS.getConfig().getConfig().getString("storage.type")).toLowerCase(Locale.ROOT)) {
+            case "mysql":
+                this.database = new HikariDatabase("mysql",
+                        FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.host"),
+                        FilesManager.ACCESS.getConfig().getConfig().getInt("storage.mysql.port"),
+                        FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.database"),
+                        FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.password"),
+                        FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.username"), ""
+                );
+                try {
+                    SQLHandler.createTableIfNotExists(database.getConnection(), FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.table"),
+                            "player VARCHAR(100), uuid VARCHAR(100), mobcoins DOUBLE(10,2), multiplier DOUBLE(10,2)");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "sqlite":
+                String url = "jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath();
+                try (Connection conn = DriverManager.getConnection(url)) {
+                    if (conn != null) {
+                        DatabaseMetaData meta = conn.getMetaData();
+                    }
+                    SQLHandler.createTableIfNotExists(conn, FilesManager.ACCESS.getConfig().getConfig().getString("storage.mysql.table"),
+                            "player VARCHAR(100), uuid VARCHAR(100), mobcoins DOUBLE(10,2), multiplier DOUBLE(10,2)");
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
+                break;
+        }
     }
 
-    public MobcoinsPlayer warpPlayer(UUID uuid) {
-        // get player if the player don't exist (in cache)
-        if(cache.containsKey(uuid)) {
-            return cache.get(uuid);
-        } else {
-            if(hasAccount(uuid)) {
-                return new MobcoinsPlayer(uuid, getMobcoins(uuid), getMultiplier(uuid));
-            } else {
-                return new MobcoinsPlayer(uuid, firstMobcoins, 1);
-            }
-        }
+    public void updateTask () {
+//        new BukkitRunnable() {
+//            @Override
+//            public void run() {
+//                setMobcoins(null, 0);
+//            }
+//        }.runTaskTimerAsynchronously(FlareMobcoins.PLUGIN.getPlugin(), 5, 1000);
     }
-    public MobcoinsPlayer warpPlayer(String name) {
-        UUID uuid = Utils.UTILS.getPlayerUUID(name);
-        // get player if the player don't exist (in cache)
-        if(cache.containsKey(uuid)) {
-            return cache.get(uuid);
-        } else {
-            if(hasAccount(uuid)) {
-                return new MobcoinsPlayer(uuid, getMobcoins(uuid), getMultiplier(uuid));
-            } else {
-                return new MobcoinsPlayer(uuid, firstMobcoins, 1);
-            }
-        }
-    }
+
     public MobcoinsPlayer warpPlayerNoCache(UUID uuid) {
         return new MobcoinsPlayer(uuid, getMobcoins(uuid), getMultiplier(uuid));
     }
@@ -84,7 +88,7 @@ public class DataService {
                     hasAccounts.add(uuid);
                 return hasAccounts.contains(uuid);
             case "mysql":
-                try (Connection connection = TMMobCoins.PLUGIN.getDatabase().getConnection()) {
+                try (Connection connection = database.getConnection()) {
                     if(SQLHandler.exists(connection, table, "uuid", uuid.toString()))
                         hasAccounts.add(uuid);
                     return hasAccounts.contains(uuid);
@@ -92,7 +96,7 @@ public class DataService {
                     throw new RuntimeException(e);
                 }
             case "sqlite":
-                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
+                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
                     if(SQLHandler.exists(conn, table, "uuid", uuid.toString()))
                         hasAccounts.add(uuid);
                     return hasAccounts.contains(uuid);
@@ -111,7 +115,7 @@ public class DataService {
                     mobcoins = FilesManager.ACCESS.getData().getConfig().getDouble("account." + uuid + ".mobcoins");
                     break;
                 case "mysql":
-                    try(Connection connection = TMMobCoins.PLUGIN.getDatabase().getConnection()) {
+                    try(Connection connection = database.getConnection()) {
                         createPlayerProfile(connection, uuid);
                         mobcoins = Double.parseDouble(SQLHandler.get(connection, table, "mobcoins", new String[]{"uuid='" + uuid + "'"}).toString());
                     } catch (SQLException e) {
@@ -119,7 +123,7 @@ public class DataService {
                     }
                     break;
                 case "sqlite":
-                    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
+                    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
                         mobcoins = Double.parseDouble(SQLHandler.get(conn, table, "mobcoins", new String[]{"uuid='" + uuid + "'"}).toString());
                     } catch (SQLException e) {
                         System.out.println(e.getMessage());
@@ -142,7 +146,7 @@ public class DataService {
                 multiplier = FilesManager.ACCESS.getData().getConfig().getDouble("account." + uuid + ".multiplier");
                 break;
             case "mysql":
-                try(Connection connection = TMMobCoins.PLUGIN.getDatabase().getConnection()) {
+                try(Connection connection = database.getConnection()) {
                     createPlayerProfile(connection, uuid);
                     multiplier = Double.parseDouble(SQLHandler.get(connection, table, "multiplier", new String[]{"uuid='" + uuid + "'"}).toString());
                 } catch (SQLException e) {
@@ -150,7 +154,7 @@ public class DataService {
                 }
                 break;
             case "sqlite":
-                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
+                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
                     multiplier = Double.parseDouble(SQLHandler.get(conn, table, "multiplier", new String[]{"uuid='" + uuid + "'"}).toString());
                 } catch (SQLException e) {
                     System.out.println(e.getMessage());
@@ -189,7 +193,7 @@ public class DataService {
                     lastUpdateTime = System.currentTimeMillis();
                     break;
                 case "mysql":
-                    try (Connection connection = TMMobCoins.PLUGIN.getDatabase().getConnection()) {
+                    try (Connection connection = database.getConnection()) {
                         for(UUID uuids : cacheUpdates) {
                             createPlayerProfile(connection, uuids);
                             SQLHandler.set(connection, table, "mobcoins", cache.get(uuids).getMobcoins(), new String[]{"uuid = '" + uuids + "'"});
@@ -201,7 +205,7 @@ public class DataService {
                     }
                     break;
                 case "sqlite":
-                    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
+                    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
                         createPlayerProfile(conn, uuid);
                         SQLHandler.set(conn, table, "mobcoins", cache.get(uuid).getMobcoins(), new String[]{"uuid = '" + uuid + "'"});
                     } catch (SQLException e) {
@@ -225,7 +229,7 @@ public class DataService {
                 FilesManager.ACCESS.getData().saveConfig();
                 break;
             case "mysql":
-                try(Connection connection = TMMobCoins.PLUGIN.getDatabase().getConnection()) {
+                try(Connection connection = database.getConnection()) {
                     createPlayerProfile(connection, uuid);
                     SQLHandler.set(connection, table, "multiplier", multiplier, new String[]{"uuid = '" + uuid + "'"});
                 } catch (SQLException e) {
@@ -233,7 +237,7 @@ public class DataService {
                 }
                 break;
             case "sqlite":
-                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(TMMobCoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
+                try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + new File(FlareMobcoins.PLUGIN.getPlugin().getDataFolder(), "data/data.db").getAbsolutePath())) {
                     createPlayerProfile(conn, uuid);
                     SQLHandler.set(conn, table, "multiplier", multiplier, new String[]{"uuid = '" + uuid + "'"});
                 } catch (SQLException e) {

@@ -1,14 +1,17 @@
-package net.devtm.tmmobcoins.service;
+package net.flares.flaremobcoins.service;
 
-import net.flares.lib.TML.FlareScript;
-import net.flares.lib.exceptions.ItemBuilderConfigurationException;
-import net.flares.lib.menu.Menu;
-import net.flares.lib.menu.item.ItemStructure;
-import net.devtm.tmmobcoins.TMMobCoins;
-import net.devtm.tmmobcoins.files.FilesManager;
-import net.devtm.tmmobcoins.util.ShopStock;
-import net.devtm.tmmobcoins.util.StockProfile;
-import net.devtm.tmmobcoins.util.Utils;
+import net.flarepowered.FlarePowered;
+import net.flarepowered.core.TML.FlareScript;
+import net.flarepowered.core.menus.objects.MenuInterface;
+import net.flarepowered.core.menus.objects.MenuRender;
+import net.flarepowered.core.menus.objects.items.FlareItem;
+import net.flarepowered.other.Logger;
+import net.flarepowered.other.exceptions.ItemBuilderConfigurationException;
+import net.flares.flaremobcoins.files.FilesManager;
+import net.flares.flaremobcoins.util.ShopStock;
+import net.flares.flaremobcoins.util.StockProfile;
+import net.flares.flaremobcoins.util.Utils;
+import net.flares.flaremobcoins.FlareMobcoins;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -28,16 +31,32 @@ public class MenuService {
             FlareScript flareScript = new FlareScript();
             if(!flareScript.processFull(Utils.readConfig("shops/" + s).getStringList("open_requirement"), player)) return;
         }
-        Menu menu = config.contains("menu_type") ? new Menu(player, config.getString("menu_title"), InventoryType.valueOf(config.getString("menu_type"))) :
-                new Menu(player, config.getString("menu_title"), config.getInt("size"));
+        MenuInterface menuInterface = new MenuInterface();
+        if(config.contains("menu_type")) {
+            menuInterface.inventoryType = InventoryType.valueOf(config.getString("menu_type"));
+            menuInterface.menuSize = (byte) 0;
+        } else {
+            menuInterface.menuSize = (byte) config.getInt("size");
+            menuInterface.inventoryType = InventoryType.CHEST;
+        }
+        menuInterface.title = config.getString("menu_title");
         for (String s1 : config.getConfigurationSection("items").getKeys(false)) {
             try {
-                menu.assignItems(new ItemStructure().setPlayer(player).createItemFormConfig(config, "items", s1));
-            } catch (ItemBuilderConfigurationException e) {TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, e.getMessage());}
+                FlareItem item = new FlareItem().setConfig("shop/" + s + ".yml", "items." + s1).getObject();
+                menuInterface.assignItem(item.page, item);
+            } catch (ItemBuilderConfigurationException e) {
+                Logger.error(e.getMessage());
+            }
         }
-        if(config.contains("rotating_shop")) menu = createRotatingMenu(player, s, menu);
-        menu.updateContent();
-        player.openInventory(menu.getInventory());
+        if(config.contains("rotating_shop")) createRotatingMenu(player, s, menuInterface);
+        MenuRender mr = new MenuRender(player, menuInterface, true);
+        if(!FlarePowered.LIB.getMenuManager().menusInRender.containsKey(player.getUniqueId()))
+            FlarePowered.LIB.getMenuManager().menusInRender.put(player.getUniqueId(), mr);
+        else
+            FlarePowered.LIB.getMenuManager().menusInRender.replace(player.getUniqueId(), mr);
+        mr.renderToPlayer();
+//        menu.updateContent();
+//        player.openInventory(menu.getInventory());
     }
 
     public void updateRotatingShop(String shopName) {
@@ -59,56 +78,59 @@ public class MenuService {
         }
     }
 
-    private Menu createRotatingMenu(Player player, String shopName, Menu menu) {
+    private void createRotatingMenu(Player player, String shopName, MenuInterface menu) {
         updateRotatingShop(shopName);
         FileConfiguration shop = Utils.readConfig("shop/" + shopName + ".yml");
         for(String key : FilesManager.ACCESS.getData().getConfig().getConfigurationSection("rotating_shop." + shopName + ".items_normal").getKeys(false)) {
             try {
-                ItemStructure is = new ItemStructure().setPlayer(player).createItemFormConfig(shop, "items", key)
-                        .setSlots(FilesManager.ACCESS.getData().getConfig().getInt("rotating_shop." + shopName + ".items_normal." + key + ".slot"));
-                //StockProfile stockProfile = ServiceHandler.SERVICE.getMenuService().getStock(player, shopName, key);
+                FlareItem fi = new FlareItem().setConfig("shop/" + shopName + ".yml", "items." + key).getObject();
+                fi.setSlot((byte) FilesManager.ACCESS.getData().getConfig().getInt("rotating_shop." + shopName + ".items_normal." + key + ".slot"));
+                StockProfile stockProfile = ServiceHandler.SERVICE.getMenuService().getStock(player, shopName, key);
                 List<String> newClickCommands = new ArrayList<>();
-                if(is.onClickCommands != null)
-                    for(String s : is.onClickCommands) {
-                        Matcher matcher = Pattern.compile("(?i)\\[buy\\((tokens|money|mobcoins)\\)] (\\d+\\.?\\d*)").matcher(s);
+                if(fi.clickCommands != null)
+                    for(String s : fi.clickCommands) {
+                        Matcher matcher = Pattern.compile("(?i)\\[buy_from_stock\\((tokens|money|mobcoins)\\)] (\\d+\\.?\\d*)").matcher(s);
                         if(matcher.find()) {
-                            newClickCommands.add("[buy(" + matcher.group(1) + ")] " + matcher.group(2) + " rotating_shop_name=" + shopName + " rotating_shop_item=" + key);
+                            newClickCommands.add("[buy_from_stock(" + matcher.group(1) + ")] " + matcher.group(2) + " rotating_shop_name=" + shopName + " rotating_shop_item=" + key);
                             continue;
                         }
                         newClickCommands.add(s);
                     }
-                is.onClickCommands = newClickCommands;
-                if(is.lore != null)
-                    is.lore.replaceAll(line -> line.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
+                fi.clickCommands = newClickCommands;
+                if(fi.lore != null)
+                    fi.lore.replaceAll(line -> line.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
                             .replace("%pl_max_stock%", "%pl_max_stock_" + shopName + "/" + key + "%"));
-                if(is.displayName != null) is.displayName = is.displayName.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
+                if(fi.displayName != null) fi.displayName = fi.displayName.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
                         .replace("%pl_max_stock%", "%pl_max_stock_" + shopName + "/" + key + "%");
-                menu.assignItems(is);
-            } catch (ItemBuilderConfigurationException e) {TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, e.getMessage());}
+                menu.assignItem(0, fi);
+            } catch (ItemBuilderConfigurationException e) {
+                FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, e.getMessage());}
         }
         for(String key : FilesManager.ACCESS.getData().getConfig().getConfigurationSection("rotating_shop." + shopName + ".items_premium").getKeys(false)) {
             try {
-                ItemStructure is = new ItemStructure().setPlayer(player).createItemFormConfig(shop, "items", key).setSlots(FilesManager.ACCESS.getData().getConfig().getInt("rotating_shop." + shopName + ".items_premium." + key + ".slot"));
+                FlareItem fi = new FlareItem().setConfig("shop/" + shopName + ".yml", "items." + key).getObject();
+                fi.setSlot((byte) FilesManager.ACCESS.getData().getConfig().getInt("rotating_shop." + shopName + ".items_premium." + key + ".slot"));
+                StockProfile stockProfile = ServiceHandler.SERVICE.getMenuService().getStock(player, shopName, key);
                 List<String> newClickCommands = new ArrayList<>();
-                if(is.onClickCommands != null)
-                    for(String s : is.onClickCommands) {
-                        Matcher matcher = Pattern.compile("(?i)\\[buy\\((tokens|money|mobcoins)\\)] (\\d+\\.?\\d*)").matcher(s);
+                if(fi.clickCommands != null)
+                    for(String s : fi.clickCommands) {
+                        Matcher matcher = Pattern.compile("(?i)\\[buy_from_stock\\((tokens|money|mobcoins)\\)] (\\d+\\.?\\d*)").matcher(s);
                         if(matcher.find()) {
-                            newClickCommands.add("[buy(" + matcher.group(1) + ")] " + matcher.group(2) + " rotating_shop_name=" + shopName + " rotating_shop_item=" + key);
+                            newClickCommands.add("[buy_from_stock(" + matcher.group(1) + ")] " + matcher.group(2) + " rotating_shop_name=" + shopName + " rotating_shop_item=" + key);
                             continue;
                         }
                         newClickCommands.add(s);
                     }
-                is.onClickCommands = newClickCommands;
-                if(is.lore != null)
-                    is.lore.replaceAll(line -> line.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
+                fi.clickCommands = newClickCommands;
+                if(fi.lore != null)
+                    fi.lore.replaceAll(line -> line.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
                             .replace("%pl_max_stock%", "%pl_max_stock_" + shopName + "/" + key + "%"));
-                if(is.displayName != null) is.displayName = is.displayName.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
+                if(fi.displayName != null) fi.displayName = fi.displayName.replace("%pl_stock%", "%pl_stock_" + shopName + "/" + key + "%")
                         .replace("%pl_max_stock%", "%pl_max_stock_" + shopName + "/" + key + "%");
-                menu.assignItems(is);
-            } catch (ItemBuilderConfigurationException e) {TMMobCoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, e.getMessage());}
+                menu.assignItem(0, fi);
+            } catch (ItemBuilderConfigurationException e) {
+                FlareMobcoins.PLUGIN.getPlugin().getLogger().log(Level.SEVERE, e.getMessage());}
         }
-        return menu;
     }
 
     public StockProfile getStock(Player player, String shopName, String itemName) {

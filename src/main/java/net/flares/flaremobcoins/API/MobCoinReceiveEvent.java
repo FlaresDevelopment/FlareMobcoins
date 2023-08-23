@@ -1,11 +1,9 @@
-package net.devtm.tmmobcoins.API;
+package net.flares.flaremobcoins.API;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;

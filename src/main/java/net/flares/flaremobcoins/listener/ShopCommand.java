@@ -1,7 +1,7 @@
-package net.devtm.tmmobcoins.listener;
+package net.flares.flaremobcoins.listener;
 
-import net.devtm.tmmobcoins.files.FilesManager;
-import net.devtm.tmmobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.files.FilesManager;
+import net.flares.flaremobcoins.service.ServiceHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
