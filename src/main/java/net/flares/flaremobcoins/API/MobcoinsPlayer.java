@@ -1,6 +1,6 @@
 package net.flares.flaremobcoins.API;
 
-import net.flares.flaremobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.service.Service;
 import net.flares.flaremobcoins.util.Utils;
 
 import java.util.UUID;
@@ -13,26 +13,26 @@ public class MobcoinsPlayer {
 
     public static MobcoinsPlayer warpPlayer(UUID uuid) {
         // get player if the player don't exist (in cache)
-        if(ServiceHandler.SERVICE.getDataService().cache.containsKey(uuid)) {
-            return ServiceHandler.SERVICE.getDataService().cache.get(uuid);
+        if(Service.SERVICE.getDataService().cache.containsKey(uuid)) {
+            return Service.SERVICE.getDataService().cache.get(uuid);
         } else {
-            if(ServiceHandler.SERVICE.getDataService().hasAccount(uuid)) {
-                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().getMobcoins(uuid), ServiceHandler.SERVICE.getDataService().getMultiplier(uuid));
+            if(Service.SERVICE.getDataService().hasAccount(uuid)) {
+                return new MobcoinsPlayer(uuid, Service.SERVICE.getDataService().getMobcoins(uuid), Service.SERVICE.getDataService().getMultiplier(uuid));
             } else {
-                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().firstMobcoins, 1);
+                return new MobcoinsPlayer(uuid, Service.SERVICE.getDataService().firstMobcoins, 1);
             }
         }
     }
     public static MobcoinsPlayer warpPlayer(String name) {
         UUID uuid = Utils.UTILS.getPlayerUUID(name);
         // get player if the player don't exist (in cache)
-        if(ServiceHandler.SERVICE.getDataService().cache.containsKey(uuid)) {
-            return ServiceHandler.SERVICE.getDataService().cache.get(uuid);
+        if(Service.SERVICE.getDataService().cache.containsKey(uuid)) {
+            return Service.SERVICE.getDataService().cache.get(uuid);
         } else {
-            if(ServiceHandler.SERVICE.getDataService().hasAccount(uuid)) {
-                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().getMobcoins(uuid), ServiceHandler.SERVICE.getDataService().getMultiplier(uuid));
+            if(Service.SERVICE.getDataService().hasAccount(uuid)) {
+                return new MobcoinsPlayer(uuid, Service.SERVICE.getDataService().getMobcoins(uuid), Service.SERVICE.getDataService().getMultiplier(uuid));
             } else {
-                return new MobcoinsPlayer(uuid, ServiceHandler.SERVICE.getDataService().firstMobcoins, 1);
+                return new MobcoinsPlayer(uuid, Service.SERVICE.getDataService().firstMobcoins, 1);
             }
         }
     }
@@ -67,7 +67,7 @@ public class MobcoinsPlayer {
     public void setMobcoins(double mobcoins) {
         this.mobcoins = mobcoins;
         if(uuid == null) return;
-        ServiceHandler.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
+        Service.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
 
     }
 
@@ -87,7 +87,7 @@ public class MobcoinsPlayer {
     public void giveMobcoins(double mobcoins) {
         this.mobcoins = this.mobcoins + mobcoins;
         if(uuid == null) return;
-        ServiceHandler.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
+        Service.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
     }
     /**
      * If you have the MobcoinsPlayer you can remove
@@ -97,7 +97,7 @@ public class MobcoinsPlayer {
     public void removeMobcoins(double mobcoins) {
         this.mobcoins = this.mobcoins - mobcoins;
         if(uuid == null) return;
-        ServiceHandler.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
+        Service.SERVICE.getDataService().setMobcoins(uuid, this.mobcoins);
     }
 
     public double getMultiplier() {
@@ -107,6 +107,6 @@ public class MobcoinsPlayer {
     public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
         if(uuid == null) return;
-        ServiceHandler.SERVICE.getDataService().setMultiplier(uuid, this.multiplier);
+        Service.SERVICE.getDataService().setMultiplier(uuid, this.multiplier);
     }
 }

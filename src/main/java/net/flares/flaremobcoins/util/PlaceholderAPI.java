@@ -4,7 +4,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.flares.flaremobcoins.API.MobcoinsPlayer;
 import net.flares.flaremobcoins.FlareMobcoins;
 import net.flares.flaremobcoins.files.FilesManager;
-import net.flares.flaremobcoins.service.ServiceHandler;
+import net.flares.flaremobcoins.service.Service;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,14 +42,13 @@ public class PlaceholderAPI extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player p, String params) {
         if (p == null)
             return "";
-        if(params.matches("rotating_shop_(\\w+)_(normal|premium)")) {
-            Matcher matcher = Pattern.compile("rotating_shop_(\\w+)_(normal|premium)").matcher(params);
-            matcher.find();
-            ServiceHandler.SERVICE.getMenuService().updateRotatingShop(matcher.group(1));
-            if(!FilesManager.ACCESS.getData().getConfig().contains("rotating_shop." + matcher.group(1) + "." + matcher.group(2) + "_last_time"))
-                return params.replace(matcher.group(),"");
-            return params.replace(matcher.group(),
-                    Utils.UTILS.findDifference(FilesManager.ACCESS.getData().getConfig().getLong("rotating_shop." + matcher.group(1) + "." + matcher.group(2) + "_last_time"), System.currentTimeMillis()));
+        if(params.contains("time")) {
+            Matcher matcher = Pattern.compile("(normal|premium)_shop_([^_]*)_time").matcher(params);
+            if(matcher.find()) {
+                return matcher.group(1).equalsIgnoreCase("normal") ?
+                            Service.SERVICE.getMenuService().getMenus().get(matcher.group(2)).getRotatingMenu().getNormalTimeLeft() :
+                            Service.SERVICE.getMenuService().getMenus().get(matcher.group(2)).getRotatingMenu().getPremiumTimeLeft();
+            }
         }
         if (params.contains("get_mobcoins"))
             return String.valueOf(String.format("%.2f", MobcoinsPlayer.warpPlayer(p.getUniqueId()).getMobcoins()));

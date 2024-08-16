@@ -8,8 +8,5 @@ items:
     display_name: '&7Expample'
     slot: 0
     click_commands:
-      - "if"
-      - " [REQUIRE(mobcoins;100;remove)]"
-      - "do"
-      - " [CONSOLE] say hello"
-      - "end"
+      - "[buy(mobcoins)] 100"
+      - "[message] example!"

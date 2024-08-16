@@ -2,11 +2,10 @@ package net.flares.flaremobcoins.service;
 
 import net.flarepowered.core.data.MySQL.SQLHandler;
 import net.flarepowered.core.data.hikari.HikariDatabase;
-import net.flares.flaremobcoins.FlareMobcoins;
 import net.flares.flaremobcoins.API.MobcoinsPlayer;
+import net.flares.flaremobcoins.FlareMobcoins;
 import net.flares.flaremobcoins.files.FilesManager;
 import net.flares.flaremobcoins.util.Utils;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.sql.Connection;
@@ -140,10 +139,11 @@ public class DataService {
     }
 
     public double getMultiplier(UUID uuid) {
-        double multiplier = 0;
+        double multiplier = 1;
         switch (storageType) {
             case "file":
-                multiplier = FilesManager.ACCESS.getData().getConfig().getDouble("account." + uuid + ".multiplier");
+                multiplier = FilesManager.ACCESS.getData().getConfig().contains("account." + uuid + ".multiplier") ?
+                        FilesManager.ACCESS.getData().getConfig().getDouble("account." + uuid + ".multiplier") : 1;
                 break;
             case "mysql":
                 try(Connection connection = database.getConnection()) {
@@ -172,6 +172,7 @@ public class DataService {
     }
 
     public void setMobcoins(UUID uuid, double amount) {
+        amount = Double.parseDouble(Utils.UTILS.getTwoDecimals().format(amount));
         if(uuid != null)
             if(!cache.containsKey(uuid)) {
                 cache.put(uuid, new MobcoinsPlayer(uuid, amount, -1));

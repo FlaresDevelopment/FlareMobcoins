@@ -1,7 +1,10 @@
 package net.flares.flaremobcoins.files;
 
 import lombok.Getter;
+import net.flarepowered.FlarePowered;
 import net.flarepowered.core.data.yaml.YamlFile;
+import net.flarepowered.core.text.Message;
+import net.flares.flaremobcoins.FlareMobcoins;
 import net.flares.flaremobcoins.MobcoinsByFlares;
 
 import java.io.File;
@@ -11,7 +14,6 @@ public enum FilesManager {
     ACCESS;
 
     private YamlFile data;
-    private YamlFile locale;
     private YamlFile config;
     private YamlFile drops;
 
@@ -20,7 +22,6 @@ public enum FilesManager {
             MobcoinsByFlares.getPlugin(MobcoinsByFlares.class).saveResource("shop/main.yml", false);
         }
         this.data = new YamlFile(MobcoinsByFlares.getPlugin(MobcoinsByFlares.class), "data/data.yml");
-        this.locale = new YamlFile(MobcoinsByFlares.getPlugin(MobcoinsByFlares.class), "locale/en.yml");
         this.config = new YamlFile(MobcoinsByFlares.getPlugin(MobcoinsByFlares.class), "config.yml");
         this.drops = new YamlFile(MobcoinsByFlares.getPlugin(MobcoinsByFlares.class), "drops.yml");
         loadConfig();
@@ -35,4 +36,13 @@ public enum FilesManager {
         this.config.saveDefaultConfig();
         this.drops.saveDefaultConfig();
     }
+
+    public void loadLocales() {
+        String locale = config.getConfig().contains("select_locale") ? config.getConfig().getString("select_locale") : "en.yml";
+        if(!new File(MobcoinsByFlares.getPlugin(MobcoinsByFlares.class).getDataFolder(), "locale/" + locale).exists()) {
+            if(locale.equalsIgnoreCase("en.yml")) FlareMobcoins.PLUGIN.getPlugin().saveResource("locale/en.yml", false);
+        }
+        Message.loadLocale(new YamlFile(FlareMobcoins.PLUGIN.getPlugin(), "locale/" + locale));
+    }
+
 }

@@ -1,15 +1,13 @@
 # Here you can customize the drops for any mobs or types!
 #
-# To get started take a look on our wiki: https://mobcoins.flares.dev/drops/drops
+# To get started take a look on our wiki: https://mobcoins.flares.dev/drops/configure-drops
 
 entity:
-#  ZOMBIE:
-#    drop_value: random_decimal(1;10)
-#    drop_action:
-#      - "[CONSOLE] mobcoins give %pl_player% %pl_mobcoins%"
-#      - "[TITLE] &a&l+%pl_mobcoins%;You just got %pl_mobcoins% mobcoins"
-#  SKELETON:
-#    drop_value: random_number(1;10)
-#    drop_action:
-#      - "[CONSOLE] mobcoins give %pl_player% %pl_mobcoins%"
-#      - "[TITLE] &a&l+%pl_mobcoins%;You just got %pl_mobcoins% mobcoins"
+  zombie_example:
+    entity: ZOMBIE
+    # This will drop a random decimal number from 1 to 2
+    drop_value: random_decimal(1,2)
+    drop_action:
+      - "[mobcoins_give] %pl_mobcoins%"
+      - "[title] title=&2&l+%pl_mobcoins% subtitle=You killed a mob and received %pl_mobcoins%"
+      - "[actionbar] &2&lYou killed a mob and received &a%pl_mobcoins%"

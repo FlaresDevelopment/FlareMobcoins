@@ -1,9 +1,9 @@
 name: FlareMobcoins
-version: 3.0
+version: 3.0.2
 main: net.flares.flaremobcoins.MobcoinsByFlares
 author: FlaresDevelopment
 description: A mobcoins plugin made with love in Romania.
-website: "https://flares.dev"
+website: "https://flares.dev/mobcoins"
 api-version: 1.13
 commands:
   mobcoins:

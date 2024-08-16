@@ -5,16 +5,18 @@ basic:
   some_error: "%pl_prefix% &fYou encountered an error."
   player_not_found: "%pl_prefix% &fPlayer not found."
   only_player: "%pl_prefix% &fThis command can be executed only in game."
+  no_menu_by_this_name: "%pl_prefix% &fThere is no shop by this name!"
+  number_cannot_be_negative: "%pl_prefix% &fThe number should pe positive!"
 
 help_text:
   header:
     no_permission:
       - ""
-      - " <GRADIENT:#FFC837-#FFC837>Flare Tokens</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
+      - " <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
       - " &fYou don't have help permission."
       - ""
     with_permission:
-      - " <GRADIENT:#FFC837-#FFC837>Flare Tokens</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
+      - " <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> \u00BB &fMade by FlaresDevelopment &8[&f%pl_version%&8]"
       - ""
       - " &f&nArguments:&r &7[] Required, () Optional."
       - ""
@@ -22,19 +24,38 @@ help_text:
       - ""
       - "&7&oNote: If you need help using our plugin check our wiki or join our discord server (https://discord.com/invite/y9SFugjkrf)."
   commands:
-    reload: " &8\u00BB &7/tokens reload &f- reloads plugin"
-    give: " &8\u00BB &7/tokens give [player] [tokens] &f- gives tokens to player"
-    set: " &8\u00BB &7/tokens set [player] [tokens] &f- sets tokens to a player"
-    remove: " &8\u00BB &7/tokens remove [player] [tokens] &f- removes tokens from a player"
-    balance: " &8\u00BB &7/tokens balance (player) &f- checks balance"
-    pay: " &8\u00BB &7/tokens pay [amount] [player] &f- pays tokens to a player"
+    reload: " &8\u00BB &7/mobcoins reload &f- reloads plugin"
+    drops: " &8\u00BB &7/mobcoins drops &f- Shows all drops"
+    give: " &8\u00BB &7/mobcoins give [player] [mobcoins] &f- gives mobcoins to player"
+    set: " &8\u00BB &7/mobcoins set [player] [mobcoins] &f- sets mobcoins to a player"
+    remove: " &8\u00BB &7/mobcoins remove [player] [mobcoins] &f- removes mobcoins from a player"
+    balance: " &8\u00BB &7/mobcoins balance (player) &f- checks balance"
+    pay: " &8\u00BB &7/mobcoins pay [amount] [player] &f- pays mobcoins to a player"
+    multiplier: " &8\u00BB &7/mobcoins multiplier &f- to see multiplier help"
 
 shop:
+  # set to normal/premium shop resets messages to "disabled" to disable them!
+  # use %pl_shop_name% to get the shop name
+  rotating_shop_reset:
+    normal: "%pl_prefix% &fThe <gradient:#b3ffab-#12fff7>&lɴᴏʀᴍᴀʟ</gradient>&f shop have been rest!"
+    premium: "%pl_prefix% &fThe <gradient:#ff9966-#ff5e62>&lᴘʀᴇᴍɪᴜᴍ</gradient>&f shop have been rest!"
   buy_failed: "%pl_prefix% &fYou don't have money from this!"
   no_stock: "%pl_prefix% &fThis item is out of stock!"
   placeholders:
     no_stock: "&c&lOUT OF STOCK"
-    stock: "%pl_stock%/%pl_max_stock%"
+
+drops_menu:
+  title: "&rEntities"
+  drop_value_format: "%pl_min% to %pl_max% mobcoins"
+  item:
+    display_name: "&7"
+    lore:
+      - " &8› <GRADIENT:#F2994A-#F2C94C>ENTITIES:</GRADIENT>"
+      - " %pl_entities%"
+      - " "
+      - " &8› <GRADIENT:#C779D0-#4BC0C8>DROP CHANCE</GRADIENT>&f %pl_drop_chance%"
+      - " &8› <GRADIENT:#C779D0-#4BC0C8>DROP VALUE</GRADIENT>"
+      - " &f %pl_drop_value%"
 
 commands:
   reload:
@@ -61,6 +82,16 @@ commands:
     help: '%pl_prefix% &fPlease use &#F09819"/mobcoins balance [player]"&f.'
     player: "%pl_prefix% &fYou have &#F09819%pl_mobcoins% &fmobcoins in your wallet."
     otherplayer: "%pl_prefix% &fThe player %pl_player% has &#F09819%pl_mobcoins% &fmobcoins in his wallet."
+  drops:
+    help: '%pl_prefix% &fPlease use &#F09819"/mobcoins drops (player)"&f.'
+  shop:
+    help: '%pl_prefix% &fPlease use &#F09819"/mobcoins shop open/list"&f.'
+    open:
+      failed: '%pl_prefix% &fThis menu cannot be open!'
+      help: '%pl_prefix% &fPlease use &#F09819"/mobcoins shop open [menu] (player)"&f.'
+    list:
+      list_header: "%pl_prefix% &fThere are &#4e54c8%pl_number%&f menus available"
+      list_element: " &7\u2192 <GRADIENT:#4e54c8-#8f94fb>[%pl_panel_name%]</GRADIENT> "
   multiplier:
     errors:
       cant_be: "%pl_prefix% &cSorry.. &fbut the multiplier to &c0&f."
