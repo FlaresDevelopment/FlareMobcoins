@@ -40,7 +40,7 @@ display_coin:
   pickup_commands:
     - "[mobcoins_give ] %pl_mobcoins%"
     - "[actionbar] &fYou collected &6%pl_mobcoins% &fmobcoins!"
-    - "[sound] sound=BLOCK_NOTE_BLOCK_BELL "
+    - "[sound] sound=BLOCK_NOTE_BLOCK_BELL"
 
 shop:
   # Rather if you want to have the shop enabled.

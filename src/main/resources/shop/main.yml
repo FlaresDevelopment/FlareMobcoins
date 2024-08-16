@@ -1,12 +1,87 @@
 menu_title: 'SHOP'
-size: 45
-# Here you can find a rotating_shop example
+size: 36
 items:
-  glass11:
-    material: BLACK_STAINED_GLASS_PANE
+  glass:
+    material: GRAY_STAINED_GLASS_PANE
     update: false
-    display_name: '&7Expample'
-    slot: 0
+    display_name: '&f'
+    slots: [19, 20, 21, 23, 24, 25]
+  balance:
+    material: "[HEAD] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTVmZDY3ZDU2ZmZjNTNmYjM2MGExNzg3OWQ5YjUzMzhkNzMzMmQ4ZjEyOTQ5MWE1ZTE3ZThkNmU4YWVhNmMzYSJ9fX0="
+    update: true
+    display_name: '<GRADIENT:#F7971E-#FFD200>&lPURSE</GRADIENT>'
+    lore:
+      - ""
+      - " &7You can earn mobcoins by "
+      - " &7killing mobs and animals!"
+      - ""
+      - "<GRADIENT:#ED213A-#c71c31>&lBALANCE</GRADIENT>&f: &e%pl_mobcoins%"
+      - ""
+    slot: 31
+  dirt:
+    material: DIRT
+    update: false
+    amount: 64
+    slot: 10
+    display_name: '&fDirt &8&o(100 mobcoins)'
+    lore:
+      - ""
+      - "<GRADIENT:#ED213A-#c71c31>&lPRICE</GRADIENT>&f:"
+      - " &f &e100 &fmobcoins"
+      - ""
+      - "&aRight click to buy the item"
     click_commands:
       - "[buy(mobcoins)] 100"
-      - "[message] example!"
+      - "[message] <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> &7\u00BB&f You purchased &a64x Dirt &ffor &e100 &fmobcoins"
+      - "[console] minecraft:give %pl_player% dirt 64"
+      - "[sound] sound=BLOCK_AMETHYST_BLOCK_STEP"
+  stone:
+    material: STONE
+    update: false
+    amount: 64
+    slot: 11
+    display_name: '&fStone &8&o(150 mobcoins)'
+    lore:
+      - ""
+      - "<GRADIENT:#ED213A-#c71c31>&lPRICE</GRADIENT>&f:"
+      - " &f &e150 &fmobcoins"
+      - ""
+      - "&aRight click to buy the item"
+    click_commands:
+      - "[buy(mobcoins)] 150"
+      - "[message] <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> &7\u00BB&f You purchased &a64x Dirt &ffor &e150 &fmobcoins"
+      - "[console] minecraft:give %pl_player% stone 64"
+      - "[sound] sound=BLOCK_AMETHYST_BLOCK_STEP"
+  diamond:
+    material: diamond
+    update: false
+    amount: 64
+    slot: 12
+    display_name: '&fDiamonds &8&o(550 mobcoins)'
+    lore:
+      - ""
+      - "<GRADIENT:#ED213A-#c71c31>&lPRICE</GRADIENT>&f:"
+      - " &f &e550 &fmobcoins"
+      - ""
+      - "&aRight click to buy the item"
+    click_commands:
+      - "[buy(mobcoins)] 550"
+      - "[message] <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> &7\u00BB&f You purchased &a64x Diamond &ffor &e550 &fmobcoins"
+      - "[console] minecraft:give %pl_player% diamond 64"
+      - "[sound] sound=BLOCK_AMETHYST_BLOCK_STEP"
+  fly:
+    material: feather
+    update: false
+    slot: 15
+    display_name: '&fEnable Fly &8&o(4000 mobcoins)'
+    lore:
+      - ""
+      - "<GRADIENT:#ED213A-#c71c31>&lPRICE</GRADIENT>&f:"
+      - " &f &e4000 &fmobcoins"
+      - ""
+      - "&aRight click to buy the item"
+    click_commands:
+      - "[buy(mobcoins)] 4000"
+      - "[message] <GRADIENT:#FF8008-#FFC837>FlareMobcoins</GRADIENT> &7\u00BB&f You purchased &afly &ffor &e4000 &fmobcoins"
+      - "[console] fly %pl_player% true"
+      - "[sound] sound=BLOCK_AMETHYST_BLOCK_STEP"

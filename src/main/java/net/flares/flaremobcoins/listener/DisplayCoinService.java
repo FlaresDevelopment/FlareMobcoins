@@ -35,12 +35,13 @@ import java.util.stream.Collectors;
 
 public class DisplayCoinService implements Listener {
 
-    public final boolean isEnabled = FilesManager.ACCESS.getConfig().getConfig().getBoolean("display_coin.enable");
+    public boolean isEnabled;
     private ItemStack stack;
     private final NamespacedKey keyForPlayer = new NamespacedKey(FlareMobcoins.PLUGIN.getPlugin(), "dsp_coin_player");
     private final NamespacedKey keyForAmount = new NamespacedKey(FlareMobcoins.PLUGIN.getPlugin(), "dsp_coin_amount");
 
     public void onEnable() {
+        isEnabled = FilesManager.ACCESS.getConfig().getConfig().getBoolean("display_coin.enable");
         if(!isEnabled) return;
         try {
             this.stack = FlareMaterial.wrapFromString(FilesManager.ACCESS.getConfig().getConfig().getString("display_coin.display_material")).construct(null);
@@ -52,7 +53,7 @@ public class DisplayCoinService implements Listener {
     }
 
     public void dropItemToGround(double amount, Player owner, Location dropzone) {
-        Collection<Entity> itemsSearch = owner.getWorld().getNearbyEntities(dropzone, 2, 1, 2);
+        Collection<Entity> itemsSearch = owner.getWorld().getNearbyEntities(dropzone, 3, 1, 3);
         for(Entity e : itemsSearch) {
             if(e instanceof Item) {
                 ItemStack stack = ((Item) e).getItemStack();

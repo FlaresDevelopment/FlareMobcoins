@@ -84,7 +84,7 @@ public class EntityService implements Listener {
         double dropped = Double.parseDouble(String.valueOf(String.format("%.2f", Utils.UTILS.generateNumbers(entity.getDropValue())
                 * mobcoinsPlayer.getMultiplier() * FilesManager.ACCESS.getData().getConfig().getDouble("global_multiplier"))));
         if(Service.SERVICE.getDisplayCoinService().isEnabled) {
-            Service.SERVICE.getDisplayCoinService().dropItemToGround(dropped, player, event.getEntity().getLocation());
+            Service.SERVICE.getDisplayCoinService().dropItemToGround(dropped * Utils.getTheStackMobs(event), player, event.getEntity().getLocation());
         } else {
             MobCoinReceiveEvent eventMobcoins = new MobCoinReceiveEvent(player, mobcoinsPlayer, event.getEntity().getType().toString(), entity, dropped * Utils.getTheStackMobs(event));
             /* Requirement Checks */
@@ -107,7 +107,7 @@ public class EntityService implements Listener {
         getEntityList().forEach(entity -> {
             FlareStack stack = new FlareStack();
             switch (entity.getEntityGroup()) {
-                case LIST -> stack.setMaterial(mobsHeads.containsKey(entity.getEntities().get(0).toLowerCase()) ? mobsHeads.get(entity.getEntities().get(0).toLowerCase()) : new FlareMaterial().setMaterial("barrier"));
+                case LIST -> stack.setMaterial(mobsHeads.containsKey(entity.getEntities().get(0).toLowerCase()) ? mobsHeads.get(entity.getEntities().get(0).toLowerCase()) : new FlareMaterial().setMaterial("turtle_egg"));
                 case HOSTILE -> stack.setMaterial(mobsHeads.get("HOSTILE"));
                 case PASSIVE -> stack.setMaterial(mobsHeads.get("PASSIVE"));
                 case ALL -> stack.setMaterial(mobsHeads.get("ALL"));

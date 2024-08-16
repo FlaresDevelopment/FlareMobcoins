@@ -27,6 +27,7 @@ public enum Service {
         menuService.onReload();
         dataService.reloadDataService();
         entityService.onReload();
+        displayCoinService.onEnable();
     }
 
 }

@@ -1,5 +1,6 @@
 package net.flares.flaremobcoins.util;
 
+import net.flarepowered.core.text.Message;
 import net.flarepowered.core.text.placeholders.Placeholder;
 import net.flarepowered.neo.ui.MenuArchitect;
 import net.flares.flaremobcoins.API.MobcoinsPlayer;

@@ -9,5 +9,4 @@ entity:
     drop_value: random_decimal(1,2)
     drop_action:
       - "[mobcoins_give] %pl_mobcoins%"
-      - "[title] title=&2&l+%pl_mobcoins% subtitle=You killed a mob and received %pl_mobcoins%"
-      - "[actionbar] &2&lYou killed a mob and received &a%pl_mobcoins%"
+      - "[actionbar] &fYou killed a mob and received &6%pl_mobcoins%&f!"
